@@ -1,0 +1,12 @@
+flask
+pandas
+numpy
+openai
+langchain
+langchain-community
+huggingface-hub
+sentence-transformers
+faiss-cpu
+python-dotenv
+fuzzywuzzy
+langchain-huggingface
