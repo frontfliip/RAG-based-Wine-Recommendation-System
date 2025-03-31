@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from rag_methods.rag import RAG, RetrievalStrategy
 from rag_methods.clarification import filter_answers, generate_clarifying_questions
+import pandas as pd
 import os
 
 load_dotenv()
@@ -9,7 +10,8 @@ os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 
-rag_system = RAG(retrieval_strategy=RetrievalStrategy.HYBRID, k=3)
+df = pd.read_csv("../data_processing/wines_data_final_processed.csv")
+rag_system = RAG(df=df, retrieval_strategy=RetrievalStrategy.HYBRID, k=3)
 
 @app.route('/recommend', methods=['GET'])
 def recommend():

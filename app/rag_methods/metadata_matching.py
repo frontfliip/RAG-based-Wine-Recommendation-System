@@ -69,16 +69,16 @@ def match_metadata_all(extracted_metadata, allowed_values):
 
     return matched
 
-
-# allowed_values = {
-#     "variety": df["variety"].dropna().unique().tolist(),
-#     "designation": df["designation"].dropna().unique().tolist(),
-#     "country": df["country"].dropna().unique().tolist(),
-#     "province": df["province"].dropna().unique().tolist(),
-#     "region_1": df["region_1"].dropna().unique().tolist(),
-#     "wine_color": df["wine_color"].dropna().unique().tolist()
-# }
-
+def get_allowed_values(df):
+    allowed_values = {
+        "variety": df["variety"].dropna().unique().tolist(),
+        "designation": df["designation"].dropna().unique().tolist(),
+        "country": df["country"].dropna().unique().tolist(),
+        "province": df["province"].dropna().unique().tolist(),
+        "region_1": df["region_1"].dropna().unique().tolist(),
+        "wine_color": df["wine_color"].dropna().unique().tolist()
+    }
+    return allowed_values
 
 def metadata_matches(doc_meta, constraints):
     """

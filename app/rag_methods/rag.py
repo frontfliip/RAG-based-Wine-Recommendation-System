@@ -1,5 +1,5 @@
 from llm_setup.setup_llm import set_up_llm
-from rag_methods.metadata_matching import match_metadata_all
+from rag_methods.metadata_matching import match_metadata_all, get_allowed_values
 from rag_methods.llm_calls import extract_metadata, get_recommendation
 from rag_methods.retrieval_strategies import (
     hyde_retrieval,
@@ -7,8 +7,11 @@ from rag_methods.retrieval_strategies import (
     hybrid_search_with_metadata,
     naive_retrieval,
 )
-from rag_methods.clarification import generate_clarifying_questions, filter_answers
 from vectorstore.load_vectorstore import load_vectorstore
+
+# from vectorstore.create_vectorstore import create_vectorstore, create_documents
+# from langchain_community.embeddings import HuggingFaceEmbeddings
+
 
 
 class RetrievalStrategy:
@@ -19,12 +22,17 @@ class RetrievalStrategy:
 
 
 class RAG:
-    def __init__(self, retrieval_strategy: str, k: int = 15):
+    def __init__(self, df, retrieval_strategy: str, k: int = 15):
         self.vectorstore = load_vectorstore()
+
+        # embedding_fn = HuggingFaceEmbeddings(model_name="all-mpnet-base-v2")
+        # documents = create_documents(df)
+        # self.vectorstore = create_vectorstore(embedding_fn, documents)
+
         self.client = set_up_llm()
         self.retrieval_strategy = retrieval_strategy
         self.k = k
-        self.allowed_values = {}  # populate appropriately
+        self.allowed_values = get_allowed_values(df)
 
     def set_retrieval_strategy(self, strategy: str):
         if strategy not in vars(RetrievalStrategy).values():
