@@ -63,9 +63,29 @@ You are an expert in refining and diversifying wine recommendation queries. A us
 Please generate {num_queries} diverse query variations that capture different aspects of the query. Consider perspectives such as focusing on flavor profile, aroma, body, finish, or other key wine characteristics. Ensure that each query variation remains true to the user's intent while exploring different nuances.
 
 Return your answer strictly as a JSON list of strings. For example:
-["Query variation 1", "Query variation 2", "Query variation 3"] """
-}
+["Query variation 1", "Query variation 2", "Query variation 3"] """,
 
+    "is_answer_informative": """\
+The user was asked a question:
+{question}
+Evaluate the following answer:
+"{answer}"
+If the answer indicates that the user says that he does not know the answer, or answers negatively, return single word: "no"
+Otherwise, if the user provides any  normal answer to the question return a single word: "yes" """,
+
+    "generate_clarifying_questions": """\
+User Query: "{initial_query}"
+Below are some base question templates to extract additional details (such as country, price range, wine type, vintage, occasion, and extra preferences):
+"Could you tell me more about your wine preferences?",
+"What do you look for in a wine?",
+"Is there a particular occasion or mood for this wine?",
+"Any specific flavors or aromas you enjoy?",
+"What vintage or year do you prefer?",
+"Is there anything else you'd like to add?"
+
+Based on the user query, choose and customize {number_of_questions} of these question templates that will provide the most useful information for a wine recommendation.
+Return the three questions in numbered format. """
+}
 
 def get_prompt(key: str, **kwargs) -> str:
     prompt_template = PROMPTS.get(key)

@@ -7,6 +7,7 @@ from rag_methods.retrieval_strategies import (
     hybrid_search_with_metadata,
     naive_retrieval,
 )
+from rag_methods.clarification import generate_clarifying_questions, filter_answers
 from vectorstore.load_vectorstore import load_vectorstore
 
 

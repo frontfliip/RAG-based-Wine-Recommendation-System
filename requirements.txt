@@ -10,3 +10,5 @@ faiss-cpu
 python-dotenv
 fuzzywuzzy
 langchain-huggingface
+streamlit
+streamlit-chat

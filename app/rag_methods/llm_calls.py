@@ -1,7 +1,7 @@
 from llm_setup.llm_prompts import get_prompt
 from llm_setup.setup_llm import prompt_llm
 import ast
-
+import re
 
 def extract_metadata(client, query) -> dict:
     prompt = get_prompt('metadata_extraction', query=query)

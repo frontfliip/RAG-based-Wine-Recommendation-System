@@ -1,16 +1,15 @@
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from rag_methods.rag import RAG, RetrievalStrategy
+from rag_methods.clarification import filter_answers, generate_clarifying_questions
 import os
 
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
-print("Files in FAISS directory:", os.listdir("vectorstore/faiss_index"))
-
 app = Flask(__name__)
 
-rag_system = RAG(retrieval_strategy=RetrievalStrategy.HYBRID)
+rag_system = RAG(retrieval_strategy=RetrievalStrategy.HYBRID, k=3)
 
 @app.route('/recommend', methods=['GET'])
 def recommend():
@@ -31,6 +30,39 @@ def recommend():
         'query': query,
         'strategy': strategy,
         'recommendation': recommendation
+    })
+
+@app.route('/generate_questions', methods=['POST'])
+def generate_questions():
+    data = request.get_json()
+    query = data.get("query")
+
+    if not query:
+        return jsonify({"error": "Query field is required."}), 400
+
+    questions = generate_clarifying_questions(rag_system.client, query)
+
+    return jsonify({
+        "questions": questions
+    })
+
+@app.route('/finalize_query', methods=['POST'])
+def finalize_query():
+    data = request.get_json()
+    query = data.get("query")
+    answers = data.get("answers", [])
+    questions = data.get("questions", [])
+
+    if not query:
+        return jsonify({"error": "Query field is required."}), 400
+
+    informative_answers = filter_answers(rag_system.client, answers, questions)
+    print("Something", flush=True)
+    final_query = query + "\n" + "\n".join(informative_answers) if informative_answers else query
+
+    return jsonify({
+        "filtered_answers": informative_answers,
+        "final_query": final_query
     })
 
 if __name__ == '__main__':
