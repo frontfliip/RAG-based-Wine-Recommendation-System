@@ -3,6 +3,7 @@ from llm_setup.setup_llm import prompt_llm
 import ast
 import re
 
+
 def extract_metadata(client, query) -> dict:
     prompt = get_prompt('metadata_extraction', query=query)
     result = prompt_llm(client, prompt)
@@ -44,6 +45,12 @@ def generate_queries_llm(client, original_query, num_queries=3):
     prompt = get_prompt('generate_fusion_queries', original_query=original_query, num_queries=num_queries)
     response = prompt_llm(client, prompt)
     response = ast.literal_eval(response)
+    return response
+
+
+def rewrite_query_smart(client, original_query: str, context: list[str]) -> str:
+    prompt = get_prompt('rewrite_query', original_query=original_query, context=chr(10).join(context))
+    response = prompt_llm(client, prompt)
     return response
 
 

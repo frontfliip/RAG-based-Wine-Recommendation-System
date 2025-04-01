@@ -101,14 +101,13 @@ if user_input and user_input != st.session_state.last_handled_input:
         else:
             with st.spinner("Analyzing responses and preparing recommendation..."):
                 try:
-                    clarify_response = requests.post("http://wine-rec-app:8000/finalize_query", json={
-                        "query": st.session_state.query,
-                        "answers": st.session_state.answers,
-                        "questions": st.session_state.clarifying_questions
+                    context = [f"Q: {q}\nA: {a}" for q, a in zip(st.session_state.clarifying_questions, st.session_state.answers)]
+                    clarify_response = requests.post("http://wine-rec-app:8000/rewrite_query", json={
+                        "original_query": st.session_state.query,
+                        "context": context
                     })
                     response_json = clarify_response.json()
-                    informative_answers = response_json["filtered_answers"]
-                    enriched_query = response_json.get("final_query", st.session_state.query)
+                    enriched_query = response_json.get("rewritten_query", st.session_state.query)
 
                     final_response = requests.get("http://wine-rec-app:8000/recommend", params={
                         "query": enriched_query,
@@ -118,6 +117,7 @@ if user_input and user_input != st.session_state.last_handled_input:
                         recommendation = final_response.json()["recommendation"].strip('"')
                         st.session_state.messages.append({"role": "assistant", "content": recommendation})
                         st.session_state.step = "done"
+                        st.session_state.rewritten_query = enriched_query
                         st.rerun()
                     else:
                         error_msg = f"Server error during recommendation: {final_response.status_code}"
@@ -127,6 +127,33 @@ if user_input and user_input != st.session_state.last_handled_input:
                     error_msg = f"Final request failed: {e}"
                     st.session_state.messages.append({"role": "assistant", "content": error_msg})
                     st.rerun()
+
+    elif st.session_state.step == "done":
+        with st.spinner("Updating your preferences and rerunning the search..."):
+            context = [f"Q: {q}\nA: {a}" for q, a in zip(st.session_state.clarifying_questions, st.session_state.answers)]
+            context.append(user_input)
+
+            try:
+                rewrite_response = requests.post("http://wine-rec-app:8000/rewrite_query", json={
+                    "original_query": st.session_state.query,
+                    "context": context
+                })
+                rewritten_query = rewrite_response.json().get("rewritten_query", st.session_state.query)
+
+                final_response = requests.get("http://wine-rec-app:8000/recommend", params={
+                    "query": rewritten_query,
+                    "strategy": strategy
+                })
+                if final_response.status_code == 200:
+                    recommendation = final_response.json()["recommendation"].strip('"')
+                    st.session_state.messages.append({"role": "assistant", "content": recommendation})
+                    st.session_state.rewritten_query = rewritten_query
+                else:
+                    error_msg = f"Server error during recommendation: {final_response.status_code}"
+                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
+            except Exception as e:
+                error_msg = f"Follow-up request failed: {e}"
+                st.session_state.messages.append({"role": "assistant", "content": error_msg})
 
 for i, msg in enumerate(st.session_state.messages):
     clean_content = msg["content"].strip('"')

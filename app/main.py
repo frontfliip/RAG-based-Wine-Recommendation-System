@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from rag_methods.rag import RAG, RetrievalStrategy
 from rag_methods.clarification import filter_answers, generate_clarifying_questions
+from rag_methods.llm_calls import rewrite_query_smart
 import pandas as pd
 import os
 
@@ -10,7 +11,9 @@ os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 
-df = pd.read_csv("../data_processing/wines_data_final_processed.csv")
+csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data_processing', 'wines_data_final_processed.csv')
+df = pd.read_csv(csv_path)
+
 rag_system = RAG(df=df, retrieval_strategy=RetrievalStrategy.HYBRID, k=3)
 
 @app.route('/recommend', methods=['GET'])
@@ -58,13 +61,32 @@ def finalize_query():
     if not query:
         return jsonify({"error": "Query field is required."}), 400
 
-    informative_answers = filter_answers(rag_system.client, answers, questions)
-    print("Something", flush=True)
-    final_query = query + "\n" + "\n".join(informative_answers) if informative_answers else query
+    qa_context = [f"Q: {q}\nA: {a}" for q, a in zip(questions, answers)]
+    final_query = rewrite_query_smart(rag_system.client, query, qa_context)
 
     return jsonify({
-        "filtered_answers": informative_answers,
+        "qa_context": qa_context,
         "final_query": final_query
+    })
+
+@app.route('/rewrite_query', methods=['POST'])
+def rewrite_query():
+    data = request.get_json()
+    original_query = data.get("original_query", "")
+    context = data.get("context", [])  # context is now a list of strings (follow-ups, Q&A, etc.)
+
+    if not original_query:
+        return jsonify({"error": "original_query is required"}), 400
+
+    rewritten = rewrite_query_smart(
+        rag_system.client,
+        original_query,
+        context
+    )
+
+    return jsonify({
+        "context": context,
+        "rewritten_query": rewritten
     })
 
 if __name__ == '__main__':
