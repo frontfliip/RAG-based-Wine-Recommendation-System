@@ -54,6 +54,16 @@ def rewrite_query_smart(client, original_query: str, context: list[str]) -> str:
     return response
 
 
+def rewrite_query_remove_negative_metadata(client, original_query: str, negative_metadata: dict) -> str:
+    def format_metadata(md: dict) -> str:
+        return "\n".join(
+            f"- {key}: {value}" for key, value in md.items() if value != "-"
+        )
+
+    prompt = get_prompt('remove_negative_metadata', original_query=original_query, negative_metadata=format_metadata(negative_metadata))
+
+    return prompt_llm(client, prompt)
+
 def get_recommendation(client, retrieval_context, query):
     final_prompt = get_prompt("final_recommendation", retrieval_context=retrieval_context, query=query)
     recommendation = prompt_llm(client, final_prompt)

@@ -1,6 +1,6 @@
 from llm_setup.setup_llm import set_up_llm
 from rag_methods.metadata_matching import match_metadata_all, get_allowed_values
-from rag_methods.llm_calls import extract_metadata, get_recommendation
+from rag_methods.llm_calls import extract_metadata, get_recommendation, rewrite_query_remove_negative_metadata
 from rag_methods.retrieval_strategies import (
     hyde_retrieval,
     fusion_retrieval,
@@ -42,7 +42,7 @@ class RAG:
     def extracted_and_match_metadata(self, query):
         extracted_metadata = extract_metadata(self.client, query)
         matched_metadata = match_metadata_all(extracted_metadata, self.allowed_values)
-        return matched_metadata
+        return extracted_metadata, matched_metadata
 
     def retrieve(self, query: str, matched_metadata):
 
@@ -71,7 +71,8 @@ class RAG:
         return recommendation
 
     def recommend(self, query):
-        matched_metadata = self.extracted_and_match_metadata(query)
-        retrieval_context = self.retrieve(query, matched_metadata)
+        extracted_metadata, matched_metadata = self.extracted_and_match_metadata(query)
+        rewritten_query = rewrite_query_remove_negative_metadata(self.client, query, extracted_metadata['negative'])
+        retrieval_context = self.retrieve(rewritten_query, matched_metadata)
         recommendation = self.get_final_recommendation(retrieval_context, query)
         return recommendation

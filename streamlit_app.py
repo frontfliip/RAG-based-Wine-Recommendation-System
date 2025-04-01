@@ -39,6 +39,7 @@ with st.sidebar.expander("🛠 Debug Info"):
     st.write("Answers:", st.session_state.answers)
     st.write("Messages:", st.session_state.messages)
 
+# Chat input
 user_input = st.chat_input("Type your message...")
 
 if user_input and user_input != st.session_state.last_handled_input:
@@ -62,12 +63,16 @@ if user_input and user_input != st.session_state.last_handled_input:
                         st.session_state.messages.append({"role": "assistant", "content": questions[0]})
                         st.rerun()
                     else:
-                        error_msg = f"Server error during clarification: {response.status_code}"
-                        st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                        st.session_state.messages.append({
+                            "role": "assistant",
+                            "content": f"Server error during clarification: {response.status_code}"
+                        })
                         st.rerun()
                 except Exception as e:
-                    error_msg = f"Clarification request failed: {e}"
-                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "content": f"Clarification request failed: {e}"
+                    })
                     st.rerun()
         else:
             with st.spinner("Getting wine recommendation..."):
@@ -80,11 +85,15 @@ if user_input and user_input != st.session_state.last_handled_input:
                         recommendation = final_response.json()["recommendation"].strip('"')
                         st.session_state.messages.append({"role": "assistant", "content": recommendation})
                     else:
-                        error_msg = f"Server error during recommendation: {final_response.status_code}"
-                        st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                        st.session_state.messages.append({
+                            "role": "assistant",
+                            "content": f"Server error during recommendation: {final_response.status_code}"
+                        })
                 except Exception as e:
-                    error_msg = f"Final request failed: {e}"
-                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "content": f"Final request failed: {e}"
+                    })
 
             st.session_state.step = "done"
             st.rerun()
@@ -109,6 +118,9 @@ if user_input and user_input != st.session_state.last_handled_input:
                     response_json = clarify_response.json()
                     enriched_query = response_json.get("rewritten_query", st.session_state.query)
 
+                    # ✅ Store updated query for future follow-ups
+                    st.session_state.query = enriched_query
+
                     final_response = requests.get("http://wine-rec-app:8000/recommend", params={
                         "query": enriched_query,
                         "strategy": strategy
@@ -117,15 +129,18 @@ if user_input and user_input != st.session_state.last_handled_input:
                         recommendation = final_response.json()["recommendation"].strip('"')
                         st.session_state.messages.append({"role": "assistant", "content": recommendation})
                         st.session_state.step = "done"
-                        st.session_state.rewritten_query = enriched_query
                         st.rerun()
                     else:
-                        error_msg = f"Server error during recommendation: {final_response.status_code}"
-                        st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                        st.session_state.messages.append({
+                            "role": "assistant",
+                            "content": f"Server error during recommendation: {final_response.status_code}"
+                        })
                         st.rerun()
                 except Exception as e:
-                    error_msg = f"Final request failed: {e}"
-                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "content": f"Final request failed: {e}"
+                    })
                     st.rerun()
 
     elif st.session_state.step == "done":
@@ -140,6 +155,9 @@ if user_input and user_input != st.session_state.last_handled_input:
                 })
                 rewritten_query = rewrite_response.json().get("rewritten_query", st.session_state.query)
 
+                # ✅ Store updated query again for chaining future follow-ups
+                st.session_state.query = rewritten_query
+
                 final_response = requests.get("http://wine-rec-app:8000/recommend", params={
                     "query": rewritten_query,
                     "strategy": strategy
@@ -147,14 +165,18 @@ if user_input and user_input != st.session_state.last_handled_input:
                 if final_response.status_code == 200:
                     recommendation = final_response.json()["recommendation"].strip('"')
                     st.session_state.messages.append({"role": "assistant", "content": recommendation})
-                    st.session_state.rewritten_query = rewritten_query
                 else:
-                    error_msg = f"Server error during recommendation: {final_response.status_code}"
-                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "content": f"Server error during recommendation: {final_response.status_code}"
+                    })
             except Exception as e:
-                error_msg = f"Follow-up request failed: {e}"
-                st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                st.session_state.messages.append({
+                    "role": "assistant",
+                    "content": f"Follow-up request failed: {e}"
+                })
 
+# Render chat history
 for i, msg in enumerate(st.session_state.messages):
     clean_content = msg["content"].strip('"')
     message(clean_content, is_user=msg["role"] == "user", key=f"msg_{i}")

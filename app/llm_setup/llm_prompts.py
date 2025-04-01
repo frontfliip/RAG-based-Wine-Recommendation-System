@@ -2,7 +2,7 @@ PROMPTS = {
     "metadata_extraction": """\
 You are a specialized data extraction assistant. Your task is to extract the metadata from the user's input query and return a dictionary containing extracted metadata in a structured way.
 The dictionary must necessarily contain the following keys:
-    
+
 - "min_price" (number): Represents the minimum price threshold specified in the query. For example, if the query states “starting at $15” or “from $15”, extract 15. If no minimum is mentioned, return '-'. 
 - "max_price" (number): Indicates the maximum price limit stated in the query. For instance, if the query mentions “under $25” or “priced below $25”, extract 25. If no maximum is provided, return '-'.
 - "points" (number): Captures the wine’s rating or score mentioned in the query. For example, if the query includes “with a rating around 90”, extract 90. If not mentioned, return '-'.
@@ -12,15 +12,38 @@ The dictionary must necessarily contain the following keys:
 - "wine_color" (string): Specifies the color of the wine (possible variants are “Red”, “White”, “Rosé”). If not mentioned, return '-'.
 - "min_vintage" (number): Represents the minimum vintage year specified in the query. For example, if the query states “vintage from 2005” or “minimum at 2005”, extract 2005. If no minimum is mentioned, return '-'.
 - "max_vintage" (number): Indicates the maximum vintage year stated in the query. For instance, if the query mentions “vintage under 2015” or “up to 2015” or "max 2015", extract 2015. If no maximum is provided, return '-'.
-    
+
 If any of the keys is missing in the query, you should still include it in the returning dictionary and put '-' for its value. Return only the dictionary and nothing else.
-    
+
+In addition to positive preferences, also capture if the user explicitly **wants to avoid something** (e.g., “not Chardonnay”, “anything but France”, “no Rosé”). These exclusions should be placed under a second dictionary called `"negative"`.
+
+Only the following keys are allowed in the `"negative"` dictionary:
+- "variety_designation"
+- "country"
+- "province"
+- "wine_color"
+
+Do not include numeric fields like `"min_price"`, `"max_price"`, `"points"`, `"min_vintage"`, or `"max_vintage"` in the negative dictionary. These fields cannot be logically excluded and should only appear in the "positive" section.
+
+The final output should be a dictionary with two top-level keys:
+- "positive": {{...}}
+- "negative": {{...}}
+
+If no negative preferences are present, return '-' for each key in the negative dictionary.
+
 Few examples:
-USER: "I'm looking for a Rose wine from the US, New York, under/below $20 with a rating around 90, and it should be a Pinot Noir blend"
-AI: {{"min_price": "-", "max_price": 20, "points": 90, "variety_designation": "-", "country": "US", "province": "New York", "wine_color": "Rosé", "min_vintage": "-", "max_vintage": "-"}}
-    
+
+USER: "I'm looking for a Rosé wine from the US, New York, under/below $20 with a rating around 90, and it should be a Pinot Noir blend"
+AI: {{
+  "positive": {{"min_price": "-", "max_price": 20, "points": 90, "variety_designation": "-", "country": "US", "province": "New York", "wine_color": "Rosé", "min_vintage": "-", "max_vintage": "-"}},
+  "negative": {{"variety_designation": "-", "country": "-", "province": "-", "wine_color": "-"}}
+}}
+
 USER: "I want a good wine"
-AI: {{"min_price": "-", "max_price": "-", "points": "-", "variety_designation": "-", "country": "-", "province": "-", "wine_color": "-", "min_vintage": "-", "max_vintage": "-"}} 
+AI: {{
+  "positive": {{"min_price": "-", "max_price": "-", "points": "-", "variety_designation": "-", "country": "-", "province": "-", "wine_color": "-", "min_vintage": "-", "max_vintage": "-"}},
+  "negative": {{"variety_designation": "-", "country": "-", "province": "-", "wine_color": "-"}}
+}}
     
 Based on the rules set, extract the metadata from this query:
 '{query}' """,
@@ -86,7 +109,6 @@ Below are some base question templates to extract additional details (such as co
 Based on the user query, choose and customize {number_of_questions} of these question templates that will provide the most useful information for a wine recommendation.
 Return the three questions in numbered format. """,
 
-
     "rewrite_query": """\
 You are helping to refine a wine recommendation query.
 
@@ -96,11 +118,33 @@ Original user query:
 Conversation context:
 {context}
 
-Based on the original query and only the informative clarifications provided in the context (if any), rewrite the query to better reflect the user's preferences. 
-If the context does not add any meaningful information, do not alter the query. 
-Avoid vague language and do not include guesses or uncertain preferences. Be specific and concise.
+Based on the original query and only the informative clarifications provided in the context (if any), rewrite the query to better reflect the user’s preferences.
+Your goal is to keep the original wording and structure as unchanged as possible. Only make minimal and necessary edits when the context adds clear, specific information.
+If the context does not provide any new meaningful details, return the original query as-is.
+Avoid vague additions or assumptions. Be clear, specific, and concise.
 
-Rewritten query: """
+Rewritten query: """,
+
+    "remove_negative_metadata": """\
+You are a query rewriting assistant for a wine recommendation system.
+
+You will be given:
+- The user's original query.
+- A dictionary of negative metadata — wine characteristics the user does **not** want.
+
+Your task:
+- Rewrite the original query in natural language.
+- Your rewritten query should **remove or avoid mentioning any elements present in the negative metadata**.
+- The result should sound natural and fluent.
+- Do **not** mention what should be excluded.
+
+---
+
+Original Query:
+{original_query}
+
+Negative Metadata:
+{negative_metadata} """
 }
 
 def get_prompt(key: str, **kwargs) -> str:
