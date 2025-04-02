@@ -50,12 +50,29 @@ Based on the rules set, extract the metadata from this query:
 
     "final_recommendation": """
 You are an expert wine advisor with deep knowledge of various wines and their characteristics. Your objective is to craft a clear and professional recommendation that directly addresses the user's needs.
-Below are detailed wine profiles with information on price, rating, variety, designation, country, and province:
+Below are detailed wine profiles with information on price, rating, variety, designation, country, and province, color and vintage:
 -----------------------------------------------------------
 {retrieval_context}
 -----------------------------------------------------------
 User Request: "{query}"
 Using the wine profiles above, please provide a final recommendation that integrates the relevant details and offers a well-informed suggestion for the user. """,
+
+    "final_recommendation_with_reference": """\
+You are an expert wine advisor with deep knowledge of various wines and their characteristics. Your objective is to craft a clear and professional recommendation that directly addresses the user's needs.
+
+Below are detailed wine profiles with information on price, rating, variety, designation, country, and province:
+-----------------------------------------------------------
+{retrieval_context}
+-----------------------------------------------------------
+
+In addition, the user is interested in wines similar to the following reference wine:
+-----------------------------------------------------------
+{reference_wine.page_content}
+-----------------------------------------------------------
+
+User Request: "{query}"
+
+Using the wine profiles above, please provide a final well-informed, relevant suggestion recommendation that aligns with the user's preferences and takes inspiration from the reference wine.""",
 
     "generate_hypo": """\
 You are an expert wine advisor. Below is an example wine document that demonstrates the desired structure and level of detail in a wine profile, including title, description, price, points, province, variety, designation, country, regions, winery, and reviews.
@@ -98,13 +115,21 @@ Otherwise, if the user provides any  normal answer to the question return a sing
 
     "generate_clarifying_questions": """\
 User Query: "{initial_query}"
-Below are some base question templates to extract additional details (such as country, price range, wine type, vintage, occasion, and extra preferences):
-"Could you tell me more about your wine preferences?",
-"What do you look for in a wine?",
-"Is there a particular occasion or mood for this wine?",
-"Any specific flavors or aromas you enjoy?",
-"What vintage or year do you prefer?",
-"Is there anything else you'd like to add?"
+Below are some base question templates to extract additional details:
+"Is there a specific grape variety you enjoy (e.g., Pinot Noir, Chardonnay)?",
+"Is there a specific wine style you enjoy {give examples}?"
+"What is your preferred price range for a bottle of wine?",
+"Are you looking for a wine from a specific country (e.g., France, US, Italy)?",
+"Are you looking for a wine with a specific rating or score (e.g., above 85 points)?",
+"Do you prefer a particular vintage or production year?",
+"Are you looking for a wine to pair with food? If so, what kind of food?",
+"Do you prefer a wine with fruity, earthy, spicy, or floral flavor notes?",
+"Would you like a wine that is dry, semi-dry, or sweet?",
+"Is this wine for a specific occasion (e.g., gift, celebration, casual dinner)?",
+"Should the wine have a light, medium, or full body?",
+"Do you prefer a wine with low, medium, or high acidity?",
+"Do you have a preference for well-known brands or are you open to trying something obscure?"
+"Is there something you want to avoid in your wine?"
 
 Based on the user query, choose and customize {number_of_questions} of these question templates that will provide the most useful information for a wine recommendation.
 Return the three questions in numbered format. """,
@@ -144,7 +169,38 @@ Original Query:
 {original_query}
 
 Negative Metadata:
-{negative_metadata} """
+{negative_metadata} """,
+
+    "classify_query_intent": """\
+You are a helpful assistant specialized in wine recommendations. Your task is to analyze a user's query and extract two pieces of information:
+1. The intent of the query:
+   - "similar": if the query implies the user desires a wine that echoes or resembles a specific reference wine.
+   - "normal": if the query is a general recommendation without any clear reference.
+2. The reference: the exact wine name or a clear identifying descriptor mentioned in the query.
+   IMPORTANT: When extracting the reference, include only the exact name as it would appear in our records. Do not include additional descriptive adjectives or qualifiers.
+   If no exact wine name is mentioned, return an empty string.
+   
+Our wine titles in the database always follow this structure:
+"Winery Name Vintage Wine Type (Region)"
+For example: "Chateau Lafayette Reneau 2016 Pinot Noir Rosé (Finger Lakes)"
+This title is composed of:
+   - A winery or brand name (e.g., "Chateau Lafayette Reneau")
+   - A vintage year (e.g., "2016")
+   - A wine type or grape variety description (e.g., "Pinot Noir Rosé")
+   - A region in parentheses (e.g., "(Finger Lakes)")
+
+For example:
+1. Query: "I want a wine that reminds me of Chateau Margaux."
+   Answer: {{"intent": "similar", "reference": "Chateau Margaux"}}
+2. Query: "Can you get me a wine like Chateau Lafayette Reneau 2016 Pinot Noir Rosé (Finger Lakes)?"
+   Answer: {{"intent": "similar", "reference": "Chateau Lafayette Reneau 2016 Pinot Noir Rosé (Finger Lakes)"}}
+3. Query: "I need something that stands apart from that heavy, tannic wine I tried last time."
+   Answer: {{"intent": "normal", "reference": ""}}
+4. Query: I'm seeking a wine in the spirit of 2013 Chehalem Vineyard Pinot Noir from the Chehalem Mountains, with a vibrant, layered fruit profile.",
+   Answer: {{"intent": "similar", "reference": "2013 Chehalem Vineyard Pinot Noir (Chehalem Mountains)"}}
+Now, analyze the following query and return your answer as a dict with keys "intent" and "reference":
+{query}
+    """
 }
 
 def get_prompt(key: str, **kwargs) -> str:

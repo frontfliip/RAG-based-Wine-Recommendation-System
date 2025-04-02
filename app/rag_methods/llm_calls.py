@@ -64,7 +64,19 @@ def rewrite_query_remove_negative_metadata(client, original_query: str, negative
 
     return prompt_llm(client, prompt)
 
-def get_recommendation(client, retrieval_context, query):
-    final_prompt = get_prompt("final_recommendation", retrieval_context=retrieval_context, query=query)
+def classify_query_intent(client, query):
+    prompt = get_prompt("classify_query_intent", query=query)
+    response = prompt_llm(client, prompt)
+    response = ast.literal_eval(response)
+    return response
+
+def get_recommendation(client, retrieval_context, query, reference_doc=None, reference_wine_present=False):
+    if reference_wine_present:
+        final_prompt = get_prompt("final_recommendation_with_reference", retrieval_context=retrieval_context, query=query, reference_wine=reference_doc)
+    else:
+        final_prompt = get_prompt("final_recommendation", retrieval_context=retrieval_context, query=query)
     recommendation = prompt_llm(client, final_prompt)
     return recommendation
+
+
+

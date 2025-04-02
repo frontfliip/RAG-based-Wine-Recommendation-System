@@ -66,6 +66,7 @@ def create_documents(df):
 
         doc = Document(page_content=full_text, metadata=meta)
         documents.append(doc)
+    return documents
 
 
 def create_vectorstore(embedding_fn, documents):

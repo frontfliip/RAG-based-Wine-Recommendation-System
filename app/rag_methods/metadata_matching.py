@@ -1,4 +1,6 @@
-from fuzzywuzzy import process
+from fuzzywuzzy import process, fuzz
+from vectorstore.create_vectorstore import create_documents
+
 
 def fuzzy_match_all(value, candidates, threshold=80):
     """
@@ -143,3 +145,43 @@ def metadata_matches(doc_meta, constraints):
                 return False
 
     return True
+
+def get_similar_wine(df, wine_name):
+    def match_wine_name_best(df, wine_name, threshold=80):
+        titles = df['title'].dropna().unique().tolist()
+        best_match = process.extractOne(wine_name, titles, scorer=fuzz.token_set_ratio)
+
+        if best_match and best_match[1] >= threshold:
+            return best_match[0]
+        return None
+
+    def get_document_by_title(df, target_title):
+        target = target_title.strip().lower()
+
+        df["title_normalized"] = df["title"].astype(str).str.strip().str.lower()
+
+        filtered_df = df[df["title_normalized"] == target]
+
+        if filtered_df.empty:
+            print(f"[ERROR] No exact match for title: {target_title}")
+            print("[INFO] Top fuzzy matches:")
+            titles = df["title"].dropna().unique().tolist()
+            print(process.extract(target_title, titles, limit=5))
+            raise ValueError(f"Could not find document for matched title '{target_title}'")
+
+        documents = create_documents(filtered_df)
+
+        if not documents:
+            raise ValueError(f"Document creation failed for matched title '{target_title}'")
+
+        return documents[0]
+
+    matched_wine_title = match_wine_name_best(df, wine_name)
+    if not matched_wine_title:
+        raise ValueError(f"No wine matched the title '{wine_name}' with sufficient confidence.")
+
+    matched_wine_document = get_document_by_title(df, matched_wine_title)
+    if not matched_wine_document:
+        raise ValueError(f"Could not find document for matched title '{matched_wine_title}'")
+
+    return matched_wine_document

@@ -1,5 +1,4 @@
 from openai import OpenAI
-# load_dotenv()  # Loads your .env file into os.environ
 
 def set_up_llm():
     client = OpenAI()
