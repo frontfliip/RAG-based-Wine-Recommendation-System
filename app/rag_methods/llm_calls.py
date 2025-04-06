@@ -70,11 +70,29 @@ def classify_query_intent(client, query):
     response = ast.literal_eval(response)
     return response
 
-def get_recommendation(client, retrieval_context, query, reference_doc=None, reference_wine_present=False):
+
+def get_recommendation(client, retrieval_context, query, reference_doc=None, reference_wine_present=False,
+                       num_results=1):
+    plural_suffix = "s" if num_results > 1 else ""
+
     if reference_wine_present:
-        final_prompt = get_prompt("final_recommendation_with_reference", retrieval_context=retrieval_context, query=query, reference_wine=reference_doc)
+        final_prompt = get_prompt(
+            "final_recommendation_with_reference",
+            retrieval_context=retrieval_context,
+            query=query,
+            reference_wine=reference_doc,
+            num_results=num_results,
+            plural_suffix=plural_suffix
+        )
     else:
-        final_prompt = get_prompt("final_recommendation", retrieval_context=retrieval_context, query=query)
+        final_prompt = get_prompt(
+            "final_recommendation",
+            retrieval_context=retrieval_context,
+            query=query,
+            num_results=num_results,
+            plural_suffix=plural_suffix
+        )
+
     recommendation = prompt_llm(client, final_prompt)
     return recommendation
 

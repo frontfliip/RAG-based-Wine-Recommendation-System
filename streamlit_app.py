@@ -25,6 +25,8 @@ if "last_handled_input" not in st.session_state:
 st.sidebar.title("Settings")
 strategy = st.sidebar.selectbox("Retrieval strategy", ["hybrid", "naive", "hyde", "fusion"])
 clarify_enabled = st.sidebar.checkbox("Enable Clarifying Questions", value=True)
+num_results = st.sidebar.slider("Number of wines to recommend", min_value=1, max_value=3, value=1)
+
 if st.sidebar.button("🔄 Reset chat"):
     st.session_state.clear()
     st.rerun()
@@ -38,6 +40,7 @@ with st.sidebar.expander("🛠 Debug Info"):
     st.write("Clarifying Questions:", st.session_state.clarifying_questions)
     st.write("Answers:", st.session_state.answers)
     st.write("Messages:", st.session_state.messages)
+    st.write("Num Results:", num_results)
 
 # Chat input
 user_input = st.chat_input("Type your message...")
@@ -79,7 +82,8 @@ if user_input and user_input != st.session_state.last_handled_input:
                 try:
                     final_response = requests.get("http://wine-rec-app:8000/recommend", params={
                         "query": st.session_state.query,
-                        "strategy": strategy
+                        "strategy": strategy,
+                        "num_results": num_results
                     })
                     if final_response.status_code == 200:
                         recommendation = final_response.json()["recommendation"].strip('"')
@@ -118,12 +122,12 @@ if user_input and user_input != st.session_state.last_handled_input:
                     response_json = clarify_response.json()
                     enriched_query = response_json.get("rewritten_query", st.session_state.query)
 
-                    # ✅ Store updated query for future follow-ups
                     st.session_state.query = enriched_query
 
                     final_response = requests.get("http://wine-rec-app:8000/recommend", params={
                         "query": enriched_query,
-                        "strategy": strategy
+                        "strategy": strategy,
+                        "num_results": num_results
                     })
                     if final_response.status_code == 200:
                         recommendation = final_response.json()["recommendation"].strip('"')
@@ -155,12 +159,12 @@ if user_input and user_input != st.session_state.last_handled_input:
                 })
                 rewritten_query = rewrite_response.json().get("rewritten_query", st.session_state.query)
 
-                # ✅ Store updated query again for chaining future follow-ups
                 st.session_state.query = rewritten_query
 
                 final_response = requests.get("http://wine-rec-app:8000/recommend", params={
                     "query": rewritten_query,
-                    "strategy": strategy
+                    "strategy": strategy,
+                    "num_results": num_results
                 })
                 if final_response.status_code == 200:
                     recommendation = final_response.json()["recommendation"].strip('"')

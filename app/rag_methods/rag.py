@@ -65,15 +65,15 @@ class RAG:
         else:
             raise ValueError(f"Unknown retrieval strategy: {self.retrieval_strategy}")
 
-    def get_final_recommendation(self, retrieval_context, query: str, reference_doc=None, reference_wine_present=False) -> str:
+    def get_final_recommendation(self, retrieval_context, query: str, reference_doc=None, reference_wine_present=False, num_results=1) -> str:
         retrieval_context = "\n\n".join(
             [doc.page_content for strategy_results in retrieval_context.values() for doc in strategy_results]
         )
 
-        recommendation = get_recommendation(self.client, retrieval_context, query, reference_doc, reference_wine_present)
+        recommendation = get_recommendation(self.client, retrieval_context, query, reference_doc, reference_wine_present, num_results)
         return recommendation
 
-    def recommend(self, query):
+    def recommend(self, query, num_results):
         def filter_reference_doc(result, reference_doc):
             ref_id = reference_doc.metadata.get("id")
             return [doc for doc in result if doc.metadata.get("id") != ref_id]
@@ -84,12 +84,12 @@ class RAG:
         rewritten_query = rewrite_query_remove_negative_metadata(self.client, query, extracted_metadata['negative'])
         retrieval_context = self.retrieve(rewritten_query, matched_metadata)
         if query_intent['intent'] == 'normal':
-            recommendation = self.get_final_recommendation(retrieval_context, query)
+            recommendation = self.get_final_recommendation(retrieval_context, query, num_results=num_results)
             return recommendation
         if query_intent['intent'] == 'similar':
             similar_wine = get_similar_wine(self.df, query_intent['reference'])
             retrieval_context[self.retrieval_strategy] = filter_reference_doc(retrieval_context[self.retrieval_strategy], similar_wine)
-            recommendation = self.get_final_recommendation(retrieval_context, query, reference_doc=similar_wine, reference_wine_present=True)
+            recommendation = self.get_final_recommendation(retrieval_context, query, reference_doc=similar_wine, reference_wine_present=True, num_results=num_results)
             return recommendation
 
 

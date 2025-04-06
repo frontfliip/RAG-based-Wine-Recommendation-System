@@ -48,19 +48,22 @@ AI: {{
 Based on the rules set, extract the metadata from this query:
 '{query}' """,
 
-    "final_recommendation": """
+    "final_recommendation": """\
 You are an expert wine advisor with deep knowledge of various wines and their characteristics. Your objective is to craft a clear and professional recommendation that directly addresses the user's needs.
-Below are detailed wine profiles with information on price, rating, variety, designation, country, and province, color and vintage:
+The user has requested {num_results} wine recommendation{plural_suffix}. Please ensure your response includes exactly that number of wines.
+
+Below are detailed wine profiles with information on price, rating, variety, designation, country, province, color, and vintage:
 -----------------------------------------------------------
 {retrieval_context}
 -----------------------------------------------------------
 User Request: "{query}"
-Using the wine profiles above, please provide a final recommendation that integrates the relevant details and offers a well-informed suggestion for the user. """,
+Using the wine profiles above, provide {num_results} well-justified wine recommendation{plural_suffix}. Each recommendation should integrate the most relevant details and clearly explain why it suits the user's preferences. """,
 
     "final_recommendation_with_reference": """\
 You are an expert wine advisor with deep knowledge of various wines and their characteristics. Your objective is to craft a clear and professional recommendation that directly addresses the user's needs.
+The user has requested {num_results} wine recommendation{plural_suffix}. Your response must include exactly that number of wines.
 
-Below are detailed wine profiles with information on price, rating, variety, designation, country, and province:
+Below are detailed wine profiles with information on price, rating, variety, designation, country, province, color, and vintage:
 -----------------------------------------------------------
 {retrieval_context}
 -----------------------------------------------------------
@@ -72,7 +75,8 @@ In addition, the user is interested in wines similar to the following reference 
 
 User Request: "{query}"
 
-Using the wine profiles above, please provide a final well-informed, relevant suggestion recommendation that aligns with the user's preferences and takes inspiration from the reference wine.""",
+Using the wine profiles above, provide {num_results} well-informed, relevant wine recommendation{plural_suffix} that align with the user's preferences and take inspiration from the reference wine. Each recommendation should clearly explain why it was chosen.
+    """,
 
     "generate_hypo": """\
 You are an expert wine advisor. Below is an example wine document that demonstrates the desired structure and level of detail in a wine profile, including title, description, price, points, province, variety, designation, country, regions, winery, and reviews.
@@ -116,8 +120,9 @@ Otherwise, if the user provides any  normal answer to the question return a sing
     "generate_clarifying_questions": """\
 User Query: "{initial_query}"
 Below are some base question templates to extract additional details:
+"Do you prefer red, white, rosé?"
 "Is there a specific grape variety you enjoy (e.g., Pinot Noir, Chardonnay)?",
-"Is there a specific wine style you enjoy {give examples}?"
+"Is there a specific wine style you enjoy (give examples)?"
 "What is your preferred price range for a bottle of wine?",
 "Are you looking for a wine from a specific country (e.g., France, US, Italy)?",
 "Are you looking for a wine with a specific rating or score (e.g., above 85 points)?",
@@ -131,7 +136,7 @@ Below are some base question templates to extract additional details:
 "Do you have a preference for well-known brands or are you open to trying something obscure?"
 "Is there something you want to avoid in your wine?"
 
-Based on the user query, choose and customize {number_of_questions} of these question templates that will provide the most useful information for a wine recommendation.
+Based on the user query, choose and customize {number_of_questions} of these question templates that will provide the most useful information for a wine recommendation. If the question is already answered in the prompt, don't ask that question.
 Return the three questions in numbered format. """,
 
     "rewrite_query": """\

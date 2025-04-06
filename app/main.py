@@ -20,6 +20,7 @@ rag_system = RAG(df=df, retrieval_strategy=RetrievalStrategy.HYBRID, k=3)
 def recommend():
     query = request.args.get('query')
     strategy = request.args.get('strategy', 'hyde').lower()
+    num_results = int(request.args.get('num_results', 1))
 
     if not query:
         return jsonify({'error': 'Query parameter is required'}), 400
@@ -29,7 +30,7 @@ def recommend():
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 
-    recommendation = rag_system.recommend(query)
+    recommendation = rag_system.recommend(query, num_results=num_results)
 
     return jsonify({
         'query': query,
@@ -73,7 +74,7 @@ def finalize_query():
 def rewrite_query():
     data = request.get_json()
     original_query = data.get("original_query", "")
-    context = data.get("context", [])  # context is now a list of strings (follow-ups, Q&A, etc.)
+    context = data.get("context", [])
 
     if not original_query:
         return jsonify({"error": "original_query is required"}), 400
