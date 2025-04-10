@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from rag_methods.rag import RAG, RetrievalStrategy
-from rag_methods.clarification import filter_answers, generate_clarifying_questions
+from rag_methods.clarification import generate_clarifying_questions
 from rag_methods.llm_calls import rewrite_query_smart
 import pandas as pd
 import os

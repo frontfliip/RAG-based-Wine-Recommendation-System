@@ -109,14 +109,6 @@ Please generate {num_queries} diverse query variations that capture different as
 Return your answer strictly as a list of strings. For example:
 ["Query variation 1", "Query variation 2", "Query variation 3"] """,
 
-    "is_answer_informative": """\
-The user was asked a question:
-{question}
-Evaluate the following answer:
-"{answer}"
-If the answer indicates that the user says that he does not know the answer, or answers negatively, return single word: "no"
-Otherwise, if the user provides any  normal answer to the question return a single word: "yes" """,
-
     "generate_clarifying_questions": """\
 User Query: "{initial_query}"
 Below are some base question templates to extract additional details:
