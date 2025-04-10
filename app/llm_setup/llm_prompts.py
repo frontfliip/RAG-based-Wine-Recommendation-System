@@ -136,8 +136,8 @@ Below are some base question templates to extract additional details:
 "Do you have a preference for well-known brands or are you open to trying something obscure?"
 "Is there something you want to avoid in your wine?"
 
-Based on the user query, choose and customize {number_of_questions} of these question templates that will provide the most useful information for a wine recommendation. If the question is already answered in the prompt, don't ask that question.
-Return the three questions in numbered format. """,
+Based on the user query, choose and customize {number_of_questions} of these question templates that will provide the most useful information for a wine recommendation. If the question is already answered in the initial query, don't ask that question.
+Return the {number_of_questions} questions in numbered format. """,
 
     "rewrite_query": """\
 You are helping to refine a wine recommendation query.

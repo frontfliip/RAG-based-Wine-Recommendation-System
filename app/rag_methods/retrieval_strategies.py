@@ -1,7 +1,9 @@
 from rag_methods.metadata_matching import metadata_matches
 from rag_methods.llm_calls import generate_hypothetical_document, generate_queries_llm
+from rank_bm25 import BM25Okapi
 
-def hybrid_search_with_metadata(query, vectorstore, constraints, k=15, dense_k=50):
+
+def metadata_filtering(candidates, constraints, k=15):
     """
     Performs a hybrid search using a pre-built FAISS vector store that includes metadata.
     Gradually relaxes constraints in an iterative order (by groups) until at least k documents are matched.
@@ -34,7 +36,6 @@ def hybrid_search_with_metadata(query, vectorstore, constraints, k=15, dense_k=5
     Returns:
         List[Document]: A list of up to k Document objects.
     """
-    candidates = vectorstore.similarity_search(query, k=dense_k)
     results = []
     seen_ids = set()
 
@@ -80,9 +81,10 @@ def hybrid_search_with_metadata(query, vectorstore, constraints, k=15, dense_k=5
     return results[:k]
 
 
-def hyde_retrieval(query, client, vectorstore, metadata, k=15):
+def hyde_retrieval(query, client, vectorstore, metadata, k=15, dense_k=50):
     hypo_doc = generate_hypothetical_document(client, query)
-    retrieved_docs = hybrid_search_with_metadata(hypo_doc, vectorstore, metadata, k=k)
+    candidates = vectorstore.similarity_search(hypo_doc, k=dense_k)
+    retrieved_docs = metadata_filtering(candidates, metadata, k=k)
     return retrieved_docs
 
 
@@ -135,6 +137,79 @@ def fusion_retrieval(query, client, vectorstore, metadata, top_k=15, dense_k=15,
     fusion_queries.append(query)
     fusion_results, query_results, fusion_scores = reciprocal_rank_fusion(vectorstore, fusion_queries, metadata, top_k=top_k, dense_k=dense_k, rrf_k=rrf_k)
     return fusion_results
+
+def bm25_retrieval(query, documents, k=15):
+    """
+    Performs BM25 based retrieval on a list of Document objects using the 'page_content' attribute.
+
+    Args:
+        query (str): The user's query string.
+        documents (List[Document]): A list of Document objects that have a 'page_content' attribute.
+        k (int): The number of top documents to return.
+
+    Returns:
+        List[Document]: A list of the top-k Document objects ranked by BM25 scores.
+    """
+    tokenized_docs = [doc.page_content.lower().split() for doc in documents]
+    bm25 = BM25Okapi(tokenized_docs)
+    tokenized_query = query.lower().split()
+    scores = bm25.get_scores(tokenized_query)
+    ranked_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
+    return [documents[i] for i in ranked_indices[:k]]
+
+
+def hybrid_fusion_retrieval(query, vectorstore, documents, bm25_weight=0.5, semantic_weight=0.5, k=50, dense_k=70):
+    """
+    Performs a hybrid retrieval by combining semantic (dense) search with keyword-based BM25 search.
+
+    This function retrieves candidate documents using both methods:
+      - Dense retrieval using the vectorstore's similarity_search method.
+      - Sparse retrieval using BM25 (via bm25_retrieval) on the full documents list.
+
+    The results of each method are fused using a reciprocal rank fusion-inspired approach, where a document's score is computed as:
+      score = (weight / (rank + 1))
+    with separate weights for BM25 and dense results. The documents are then ranked by the combined score.
+
+    Args:
+        query (str): The user's query string.
+        vectorstore: A FAISS vector store that provides similarity_search(query, k) for dense retrieval.
+        documents (List[Document]): A list of Document objects for BM25 sparse retrieval.
+        bm25_weight (float): Weight for the BM25 component of the score.
+        semantic_weight (float): Weight for the dense retrieval component of the score.
+        k (int): Number of final documents to return.
+        dense_k (int): Number of candidate documents to retrieve from each method.
+
+    Returns:
+        List[Document]: A list of the top-k Document objects based on combined scores.
+    """
+    dense_results = vectorstore.similarity_search(query, k=dense_k)
+
+    bm25_results = bm25_retrieval(query, documents, k=dense_k)
+    fusion_scores = {}
+    candidate_docs = {}
+
+    for rank, doc in enumerate(dense_results):
+        doc_id = doc.metadata.get("id")
+        score = semantic_weight / (rank + 1)
+        fusion_scores[doc_id] = fusion_scores.get(doc_id, 0) + score
+        candidate_docs[doc_id] = doc
+
+    for rank, doc in enumerate(bm25_results):
+        doc_id = doc.metadata.get("id")
+        score = bm25_weight / (rank + 1)
+        fusion_scores[doc_id] = fusion_scores.get(doc_id, 0) + score
+        candidate_docs[doc_id] = doc
+
+    ranked_doc_ids = sorted(fusion_scores, key=lambda doc_id: fusion_scores[doc_id], reverse=True)
+    return [candidate_docs[doc_id] for doc_id in ranked_doc_ids[:k]]
+
+
+def hybrid_retrieval(query, vectorstore, documents, metadata, bm25_weight=0.5, semantic_weight=0.5, k=15, dense_k=50):
+    ranked_documents = hybrid_fusion_retrieval(query, vectorstore, documents, k=dense_k, dense_k=dense_k + 25,
+                                               bm25_weight=bm25_weight, semantic_weight=semantic_weight)
+    filtered_documents = metadata_filtering(ranked_documents, metadata, k=k)
+    return filtered_documents
+
 
 def naive_retrieval(query, vectorstore,k=15):
     return vectorstore.similarity_search(query, k=k)

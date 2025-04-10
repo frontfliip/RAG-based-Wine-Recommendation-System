@@ -12,3 +12,4 @@ fuzzywuzzy
 langchain-huggingface
 streamlit
 streamlit-chat
+rank_bm25

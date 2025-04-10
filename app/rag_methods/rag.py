@@ -4,12 +4,13 @@ from rag_methods.llm_calls import extract_metadata, get_recommendation, rewrite_
 from rag_methods.retrieval_strategies import (
     hyde_retrieval,
     fusion_retrieval,
-    hybrid_search_with_metadata,
+    metadata_filtering,
     naive_retrieval,
+    hybrid_retrieval
 )
 from vectorstore.load_vectorstore import load_vectorstore
 
-# from vectorstore.create_vectorstore import create_vectorstore, create_documents
+from vectorstore.create_vectorstore import create_vectorstore, create_documents
 # from langchain_community.embeddings import HuggingFaceEmbeddings
 
 
@@ -26,8 +27,9 @@ class RAG:
         self.vectorstore = load_vectorstore()
 
         # embedding_fn = HuggingFaceEmbeddings(model_name="all-mpnet-base-v2")
-        # documents = create_documents(df)
-        # self.vectorstore = create_vectorstore(embedding_fn, documents)
+        # self.vectorstore = create_vectorstore(embedding_fn, self.documents)
+
+        self.documents = create_documents(df)
 
         self.client = set_up_llm()
         self.retrieval_strategy = retrieval_strategy
@@ -54,7 +56,7 @@ class RAG:
             return {'naive': naive_retrieval(query, self.vectorstore, k=k)}
 
         elif self.retrieval_strategy == RetrievalStrategy.HYBRID:
-            return {'hybrid': hybrid_search_with_metadata(query, self.vectorstore, matched_metadata, k=k)}
+            return {'hybrid': hybrid_retrieval(query, self.vectorstore, self.documents, matched_metadata, k=k)}
 
         elif self.retrieval_strategy == RetrievalStrategy.HYDE:
             return {'hyde': hyde_retrieval(query, self.client, self.vectorstore, matched_metadata, k=k)}
