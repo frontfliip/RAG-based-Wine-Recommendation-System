@@ -21,14 +21,31 @@ if "query" not in st.session_state:
 if "last_handled_input" not in st.session_state:
     st.session_state.last_handled_input = None
 
+# One-time welcome greeting before first query
+if st.session_state.step == "awaiting_query" and "has_greeted" not in st.session_state:
+    entry_prompt = """Welcome to the Wine Recommender.
+    This system helps you discover wines based on your personal preferences — whether you’re looking for a rich red, a crisp white under $30, or something that pairs well with spicy food.
+    Just type in the request."""
+    message(entry_prompt, is_user=False, key="welcome")
+    st.session_state.has_greeted = True
+
 # Sidebar options
 st.sidebar.title("Settings")
 strategy = st.sidebar.selectbox("Retrieval strategy", ["hybrid", "naive", "hyde", "fusion"])
+embedding_model = st.sidebar.selectbox("Embedding model", ["openai", "mpnet", "roberta"], index=0)
 clarify_enabled = st.sidebar.checkbox("Enable Clarifying Questions", value=True)
 num_results = st.sidebar.slider("Number of wines to recommend", min_value=1, max_value=3, value=1)
 
 if st.sidebar.button("🔄 Reset chat"):
-    st.session_state.clear()
+    # Instead of clearing the entire session state, reinitialize only the relevant keys
+    st.session_state.messages = []
+    st.session_state.step = "awaiting_query"
+    st.session_state.clarifying_questions = []
+    st.session_state.answers = []
+    st.session_state.current_q_index = 0
+    st.session_state.query = ""
+    st.session_state.last_handled_input = None
+
     st.rerun()
 
 # Debug info panel
@@ -83,7 +100,8 @@ if user_input and user_input != st.session_state.last_handled_input:
                     final_response = requests.get("http://wine-rec-app:8000/recommend", params={
                         "query": st.session_state.query,
                         "strategy": strategy,
-                        "num_results": num_results
+                        "num_results": num_results,
+                        "emb_model": embedding_model,
                     })
                     if final_response.status_code == 200:
                         recommendation = final_response.json()["recommendation"].strip('"')
@@ -127,7 +145,8 @@ if user_input and user_input != st.session_state.last_handled_input:
                     final_response = requests.get("http://wine-rec-app:8000/recommend", params={
                         "query": enriched_query,
                         "strategy": strategy,
-                        "num_results": num_results
+                        "num_results": num_results,
+                        "emb_model": embedding_model,
                     })
                     if final_response.status_code == 200:
                         recommendation = final_response.json()["recommendation"].strip('"')
@@ -164,7 +183,8 @@ if user_input and user_input != st.session_state.last_handled_input:
                 final_response = requests.get("http://wine-rec-app:8000/recommend", params={
                     "query": rewritten_query,
                     "strategy": strategy,
-                    "num_results": num_results
+                    "num_results": num_results,
+                    "emb_model": embedding_model,
                 })
                 if final_response.status_code == 200:
                     recommendation = final_response.json()["recommendation"].strip('"')

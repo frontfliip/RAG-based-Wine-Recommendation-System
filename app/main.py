@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
-from rag_methods.rag import RAG, RetrievalStrategy
+from rag_methods.rag import RAG, RetrievalStrategy, EmbeddingModel
 from rag_methods.clarification import generate_clarifying_questions
 from rag_methods.llm_calls import rewrite_query_smart
 import pandas as pd
@@ -14,19 +14,24 @@ app = Flask(__name__)
 csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data_processing', 'wines_data_final_processed.csv')
 df = pd.read_csv(csv_path)
 
-rag_system = RAG(df=df, retrieval_strategy=RetrievalStrategy.HYBRID, k=3)
+rag_system = RAG(df=df, emb_model_name=EmbeddingModel.OPENAI, retrieval_strategy=RetrievalStrategy.FUSION, k=5)
 
 @app.route('/recommend', methods=['GET'])
 def recommend():
     query = request.args.get('query')
     strategy = request.args.get('strategy', 'hyde').lower()
     num_results = int(request.args.get('num_results', 1))
-
+    emb_model = request.args.get('emb_model', 'openai').lower()
     if not query:
         return jsonify({'error': 'Query parameter is required'}), 400
 
     try:
         rag_system.set_retrieval_strategy(strategy)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+    try:
+        rag_system.set_emb_model(emb_model)
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 

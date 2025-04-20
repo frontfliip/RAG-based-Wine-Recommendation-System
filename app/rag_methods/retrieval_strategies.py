@@ -120,16 +120,17 @@ def reciprocal_rank_fusion(vectorstore, queries, metadata_constraints, top_k=10,
             fusion_scores[doc_id] = fusion_scores.get(doc_id, 0) + score
             candidate_docs[doc_id] = doc
 
-    filtered_candidates = {
-        doc_id: doc
-        for doc_id, doc in candidate_docs.items()
-        if metadata_matches(doc.metadata, metadata_constraints)
-    }
+    filtered = metadata_filtering(
+        list(candidate_docs.values()),
+        metadata_constraints,
+        k=top_k
+    )
 
-    fused_docs = sorted(filtered_candidates.values(),
-                        key=lambda d: fusion_scores.get(d.metadata.get("id"), 0),
-                        reverse=True)
-
+    fused_docs = sorted(
+        filtered,
+        key=lambda d: fusion_scores.get(d.metadata.get("id"), 0.0),
+        reverse=True
+    )
     return fused_docs[:top_k], query_results, fusion_scores
 
 def fusion_retrieval(query, client, vectorstore, metadata, top_k=15, dense_k=15, rrf_k=10, num_queries=3):

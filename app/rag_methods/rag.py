@@ -21,10 +21,15 @@ class RetrievalStrategy:
     HYDE = 'hyde'
     FUSION = 'fusion'
 
+class EmbeddingModel:
+    OPENAI = 'openai'
+    MPNET = 'mpnet'
+    ROBERTA = 'roberta'
+
 
 class RAG:
-    def __init__(self, df, retrieval_strategy: str, k: int = 15):
-        self.vectorstore = load_vectorstore()
+    def __init__(self, df, emb_model_name, retrieval_strategy: str, k: int = 10):
+        self.vectorstore = load_vectorstore(emb_model_name)
 
         # embedding_fn = HuggingFaceEmbeddings(model_name="all-mpnet-base-v2")
         # self.vectorstore = create_vectorstore(embedding_fn, self.documents)
@@ -41,6 +46,11 @@ class RAG:
         if strategy not in vars(RetrievalStrategy).values():
             raise ValueError(f"Invalid strategy. Available strategies: {vars(RetrievalStrategy).values()}")
         self.retrieval_strategy = strategy
+
+    def set_emb_model(self, emb_model):
+        if emb_model not in vars(EmbeddingModel).values():
+            raise ValueError(f"Invalid embedding model. Available models: {vars(EmbeddingModel).values()}")
+        self.vectorstore = load_vectorstore(emb_model)
 
     def extracted_and_match_metadata(self, query):
         extracted_metadata = extract_metadata(self.client, query)
