@@ -1,0 +1,484 @@
+{
+  "Premium_Wines": {
+    "test_fields": [
+      [
+        "points",
+        "country",
+        "province",
+        "Premium_Wines"
+      ],
+      [
+        "country",
+        "Premium_Wines",
+        "points"
+      ],
+      [
+        "Premium_Wines",
+        "points"
+      ],
+      [
+        "Premium_Wines",
+        "country",
+        "points"
+      ],
+      [
+        "wine_color",
+        "Premium_Wines"
+      ]
+    ],
+    "target_values": [
+      [
+        "90-100",
+        "France",
+        "Bordeaux",
+        "1"
+      ],
+      [
+        "Italy",
+        "1",
+        "90-100"
+      ],
+      [
+        "1",
+        "90-100"
+      ],
+      [
+        "1",
+        "US",
+        "90-100"
+      ],
+      [
+        "Red",
+        "1"
+      ]
+    ],
+    "queries": [
+      "Recommend a premium wine from France, Bordeaux with at least 90 points, balanced price and elegant profile.",
+      "Show me a premium wine from Italy known for top quality and refined taste rated above 90 points.",
+      "Find a premium wine that exemplifies top standards, above 90 points",
+      "Suggest a premium wine recognized for its superior quality from US rated high, above 90 at least",
+      "I need a premium red wine that stands out as premium."
+    ]
+  },
+  "Value_Wines": {
+    "test_fields": [
+      [
+        "Value_Wines",
+        "country",
+        "price",
+        "points"
+      ],
+      [
+        "Value_Wines",
+        "country",
+        "wine_color",
+        "price"
+      ],
+      [
+        "Value_Wines",
+        "wine_color",
+        "province",
+        "points"
+      ],
+      [
+        "Value_Wines",
+        "country",
+        "price",
+        "points"
+      ],
+      [
+        "Value_Wines",
+        "country",
+        "price"
+      ]
+    ],
+    "target_values": [
+      [
+        "1",
+        "Italy",
+        "0-20",
+        "80-100"
+      ],
+      [
+        "1",
+        "France",
+        "White",
+        "0-25"
+      ],
+      [
+        "1"
+      ],
+      [
+        "1",
+        "US",
+        "0-30",
+        "88-100"
+      ],
+      [
+        "1",
+        "US",
+        "0-25"
+      ]
+    ],
+    "queries": [
+      "Find a wine with great value for its price from Italy, costing under $20 and scoring at least 80 points.",
+      "Recommend one France that offers excellent quality at a low cost, a white wine costing under $25.",
+      "Show me a wine that delivers outstanding value for good price",
+      "Suggest a wine balancing quality and affordability from the US, priced under $30 with at least 80 points.",
+      "I want a wine that is a great deal in terms of price and quality from US, with a light profile and a moderate price under $25."
+    ]
+  },
+  "Food_Pairing_Meat": {
+    "test_fields": [
+      [
+        "points",
+        "country",
+        "Food_Pairing_Meat",
+        "wine_color"
+      ],
+      [
+        "Food_Pairing_Meat",
+        "price"
+      ],
+      [
+        "points",
+        "country",
+        "Food_Pairing_Meat"
+      ],
+      [
+        "country",
+        "Food_Pairing_Meat",
+        "designation"
+      ],
+      [
+        "Food_Pairing_Meat"
+      ]
+    ],
+    "target_values": [
+      [
+        "80-100",
+        "France",
+        "1",
+        "Red"
+      ],
+      [
+        "1",
+        "0-30"
+      ],
+      [
+        "85-100",
+        "Italy",
+        "1"
+      ],
+      [
+        "US",
+        "1",
+        "Reserve"
+      ],
+      [
+        "1"
+      ]
+    ],
+    "queries": [
+      "I'm looking for a red wine from France with 80+ points that pairs best with a meat steak?",
+      "Recommend a wine for a meat dinner priced under 30 dollars",
+      "Find a wine that complements grilled meat. I want an Italian with at least 85 points.",
+      "Show me a wine perfect for pairing with red meat. Ideally a Reserve one from US.",
+      "Suggest a wine for a meaty dinner."
+    ]
+  },
+  "Food_Pairing_Seafood": {
+    "test_fields": [
+      [
+        "wine_color",
+        "Food_Pairing_Seafood",
+        "country",
+        "price"
+      ],
+      [
+        "points",
+        "country",
+        "wine_color",
+        "Food_Pairing_Seafood"
+      ],
+      [
+        "Food_Pairing_Seafood"
+      ],
+      [
+        "price",
+        "Food_Pairing_Seafood",
+        "province"
+      ],
+      [
+        "Food_Pairing_Seafood"
+      ]
+    ],
+    "target_values": [
+      [
+        "White",
+        "1",
+        "Italy",
+        "0-50"
+      ],
+      [
+        "90-100",
+        "France",
+        "White",
+        "1"
+      ],
+      [
+        "1"
+      ],
+      [
+        "0-30",
+        "1",
+        "California"
+      ],
+      [
+        "1"
+      ]
+    ],
+    "queries": [
+      "Which wine pairs well with seafood? Looking for a white from Italy under 50 dollars.",
+      "Recommend a wine for a seafood platter, preferably a white from France with 90+ points.",
+      "Show me a wine that complements fresh seafood.",
+      "Find a wine suitable for fish and shellfish, something from California and under 30 dollars",
+      "Suggest a wine with the right profile for seafood dishes"
+    ]
+  },
+  "Food_Pairing_Spicy": {
+    "test_fields": [
+      [
+        "points",
+        "country",
+        "Food_Pairing_Spicy"
+      ],
+      [
+        "points",
+        "wine_color",
+        "country",
+        "Food_Pairing_Spicy"
+      ],
+      [
+        "variety",
+        "Food_Pairing_Spicy"
+      ],
+      [
+        "country",
+        "wine_color",
+        "Food_Pairing_Spicy"
+      ],
+      [
+        "country",
+        "wine_color",
+        "price",
+        "Food_Pairing_Spicy"
+      ]
+    ],
+    "target_values": [
+      [
+        "75-100",
+        "Italy",
+        "1"
+      ],
+      [
+        "80-100",
+        "Red",
+        "France",
+        "1"
+      ],
+      [
+        "Riesling",
+        "1"
+      ],
+      [
+        "US",
+        "White",
+        "1"
+      ],
+      [
+        "Argentina",
+        "Red",
+        "0-35",
+        "1"
+      ]
+    ],
+    "queries": [
+      "Find a wine from Italy with at least 75 points that perfectly complements spicy dishes.",
+      "Find a red wine from France, scoring above 80 points, with robust structure for spicy dishes.",
+      "Show me a Riesling with vibrant acidity that can handle spicy dishes.",
+      "Suggest a white wine from US that complements spicy meals.",
+      "I need a red wine from Argentina, priced at maximum at 30$, that works well with spicy food."
+    ]
+  },
+  "Food_Pairing_Dessert": {
+    "test_fields": [
+      [
+        "country",
+        "Food_Pairing_Dessert"
+      ],
+      [
+        "Food_Pairing_Dessert"
+      ],
+      [
+        "points",
+        "Food_Pairing_Dessert"
+      ],
+      [
+        "Food_Pairing_Dessert",
+        "wine_color"
+      ],
+      [
+        "Food_Pairing_Dessert"
+      ]
+    ],
+    "target_values": [
+      [
+        "US",
+        "1"
+      ],
+      [
+        "1"
+      ],
+      [
+        "85-100",
+        "1"
+      ],
+      [
+        "1",
+        "White"
+      ],
+      [
+        "1"
+      ]
+    ],
+    "queries": [
+      "Which wine pairs well with desserts? I'm looking for a US one.",
+      "Recommend a wine to drink with a light chocolate dessert.",
+      "Find a wine ideal for sweet dessert pairing. I'm seeking a wine with at least 85 points.",
+      "Show me a wine that works great with sweet treats or desserts. I'm looking for something white.",
+      "Suggest a wine that matches well with desserts."
+    ]
+  },
+  "Flavor_Profile_Oak": {
+    "test_fields": [
+      [
+        "Flavor_Profile_Oak",
+        "country",
+        "points",
+        "wine_color"
+      ],
+      [
+        "Flavor_Profile_Oak",
+        "variety",
+        "price"
+      ],
+      [
+        "Flavor_Profile_Oak",
+        "country",
+        "points",
+        "wine_color"
+      ],
+      [
+        "Flavor_Profile_Oak",
+        "country",
+        "points"
+      ],
+      [
+        "Flavor_Profile_Oak",
+        "wine_color",
+        "price"
+      ]
+    ],
+    "target_values": [
+      [
+        "1",
+        "France",
+        "90-100",
+        "Red"
+      ],
+      [
+        "1",
+        "Chardonnay",
+        "0-40"
+      ],
+      [
+        "1",
+        "Spain",
+        "88-100"
+      ],
+      [
+        "1",
+        "Italy",
+        "80-100"
+      ],
+      [
+        "1",
+        "White",
+        "20-10000"
+      ]
+    ],
+    "queries": [
+      "Find a wine with strong oak influences, from France, with at least 90 points and a red wine style.",
+      "Recommend a Chardonnay that exhibits pronounced oak characteristics priced under $40.",
+      "Show me a wine with a noticeable oak finish, from Spain, with at least 88 points.",
+      "Suggest a wine with subtle yet distinct oak flavors, from Italy scoring over 80 points.",
+      "I need a white wine that is defined by its oaky profile, above 20 dollars."
+    ]
+  },
+  "Flavor_Profile_Spice": {
+    "test_fields": [
+      [
+        "country",
+        "Flavor_Profile_Spice"
+      ],
+      [
+        "variety",
+        "Flavor_Profile_Spice"
+      ],
+      [
+        "province",
+        "Flavor_Profile_Spice"
+      ],
+      [
+        "country",
+        "points",
+        "Flavor_Profile_Spice"
+      ],
+      [
+        "variety",
+        "Flavor_Profile_Spice"
+      ]
+    ],
+    "target_values": [
+      [
+        "France",
+        "1"
+      ],
+      [
+        "Pinot Noir",
+        "1"
+      ],
+      [
+        "California",
+        "1"
+      ],
+      [
+        "US",
+        "85-100",
+        "1"
+      ],
+      [
+        "Nebbiolo",
+        "1"
+      ]
+    ],
+    "queries": [
+      "Find a wine from France with prominent spice notes.",
+      "Recommend a Pinot Noir that exhibits a spicy flavor profile.",
+      "Show me a wine from California, with hints of spicy pepper and clove.",
+      "Suggest a wine from US that delivers spice characteristics, a wine with 85+ points.",
+      "I need Nebbiolo with noticeable spice qualities."
+    ]
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "is_in journal": {
+    "test_fields": [
+      [
+        "is_in journal"
+      ],
+      [
+        "is_in journal"
+      ],
+      [
+        "is_in journal"
+      ],
+      [
+        "is_in journal"
+      ],
+      [
+        "is_in journal"
+      ]
+    ],
+    "target_values": [
+      [
+        "1"
+      ],
+      [
+        "1"
+      ],
+      [
+        "1"
+      ],
+      [
+        "1"
+      ],
+      [
+        "1"
+      ]
+    ],
+    "queries": [
+      "Recommend a premium wine of exceptional quality.",
+      "Show me a high-quality premium wine.",
+      "Find a wine renowned for its premium status.",
+      "Suggest an acclaimed premium wine.",
+      "I need a wine celebrated for its premium quality."
+    ]
+  },
+  "is_top_red": {
+    "test_fields": [
+      [
+        "is_top_red"
+      ],
+      [
+        "is_top_red"
+      ],
+      [
+        "is_top_red"
+      ],
+      [
+        "is_top_red"
+      ],
+      [
+        "is_top_red"
+      ]
+    ],
+    "target_values": [
+      [
+        "1"
+      ],
+      [
+        "1"
+      ],
+      [
+        "1"
+      ],
+      [
+        "1"
+      ],
+      [
+        "1"
+      ]
+    ],
+    "queries": [
+      "Recommend a premium red wine with bold flavors.",
+      "Show me a high-quality premium red wine.",
+      "Find a red wine recognized for its premium excellence.",
+      "Suggest an elite premium red wine.",
+      "I need a premium red wine that stands out in quality."
+    ]
+  },
+  "is_top_white": {
+    "test_fields": [
+      [
+        "is_top_white"
+      ],
+      [
+        "is_top_white"
+      ],
+      [
+        "is_top_white"
+      ],
+      [
+        "is_top_white"
+      ],
+      [
+        "is_top_white"
+      ]
+    ],
+    "target_values": [
+      [
+        "1"
+      ],
+      [
+        "1"
+      ],
+      [
+        "1"
+      ],
+      [
+        "1"
+      ],
+      [
+        "1"
+      ]
+    ],
+    "queries": [
+      "Recommend a premium white wine with crisp character.",
+      "Show me a high-quality premium white wine.",
+      "Find a white wine celebrated for its premium qualities.",
+      "Suggest an elite premium white wine.",
+      "I need a premium white wine noted for its superior quality."
+    ]
+  }
+}
