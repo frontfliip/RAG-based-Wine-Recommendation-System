@@ -1,5 +1,6 @@
 from openai import OpenAI
 
+
 def set_up_llm():
     client = OpenAI()
     return client

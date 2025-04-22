@@ -136,6 +136,7 @@ def gather_reviews(title, reviews_df=None):
 # ---------------------
 # Main Loop Execution
 # ---------------------
+# Since the reviews extraction is a long process due to rate limiting on the Vivino web page (check the .log file), the scraping was done thousand by thousand and later merged into one document that you can see _(scraped_reviews_final.csv)
 def main():
     csv_path = pd.read_csv("winemag-data-130k-v2.csv")
     df = load_and_clean_data(csv_path)

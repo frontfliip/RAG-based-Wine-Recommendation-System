@@ -197,7 +197,7 @@ Now, analyze the following query and return your answer as a dict with keys "int
     """
 }
 
-def get_prompt(key: str, **kwargs) -> str:
+def get_prompt(key, **kwargs) :
     prompt_template = PROMPTS.get(key)
     if prompt_template is None:
         raise KeyError(f"Prompt key '{key}' not found in PROMPTS dictionary.")

@@ -1,6 +1,7 @@
 from llm_setup.setup_llm import set_up_llm
 from rag_methods.metadata_matching import match_metadata_all, get_allowed_values, get_similar_wine
-from rag_methods.llm_calls import extract_metadata, get_recommendation, rewrite_query_remove_negative_metadata, classify_query_intent
+from rag_methods.llm_calls import extract_metadata, get_recommendation, rewrite_query_remove_negative_metadata, \
+    classify_query_intent
 from rag_methods.retrieval_strategies import (
     hyde_retrieval,
     fusion_retrieval,
@@ -11,8 +12,9 @@ from rag_methods.retrieval_strategies import (
 from vectorstore.load_vectorstore import load_vectorstore
 
 from vectorstore.create_vectorstore import create_vectorstore, create_documents
-# from langchain_community.embeddings import HuggingFaceEmbeddings
 
+
+# from langchain_community.embeddings import HuggingFaceEmbeddings
 
 
 class RetrievalStrategy:
@@ -21,6 +23,7 @@ class RetrievalStrategy:
     HYDE = 'hyde'
     FUSION = 'fusion'
 
+
 class EmbeddingModel:
     OPENAI = 'openai'
     MPNET = 'mpnet'
@@ -28,7 +31,7 @@ class EmbeddingModel:
 
 
 class RAG:
-    def __init__(self, df, emb_model_name, retrieval_strategy: str, k: int = 10):
+    def __init__(self, df, emb_model_name, retrieval_strategy, k=10):
         self.vectorstore = load_vectorstore(emb_model_name)
 
         # embedding_fn = HuggingFaceEmbeddings(model_name="all-mpnet-base-v2")
@@ -77,12 +80,14 @@ class RAG:
         else:
             raise ValueError(f"Unknown retrieval strategy: {self.retrieval_strategy}")
 
-    def get_final_recommendation(self, retrieval_context, query: str, reference_doc=None, reference_wine_present=False, num_results=1) -> str:
+    def get_final_recommendation(self, retrieval_context, query, reference_doc=None, reference_wine_present=False,
+                                 num_results=1) -> str:
         retrieval_context = "\n\n".join(
             [doc.page_content for strategy_results in retrieval_context.values() for doc in strategy_results]
         )
 
-        recommendation = get_recommendation(self.client, retrieval_context, query, reference_doc, reference_wine_present, num_results)
+        recommendation = get_recommendation(self.client, retrieval_context, query, reference_doc,
+                                            reference_wine_present, num_results)
         return recommendation
 
     def recommend(self, query, num_results):
@@ -100,8 +105,8 @@ class RAG:
             return recommendation
         if query_intent['intent'] == 'similar':
             similar_wine = get_similar_wine(self.df, query_intent['reference'])
-            retrieval_context[self.retrieval_strategy] = filter_reference_doc(retrieval_context[self.retrieval_strategy], similar_wine)
-            recommendation = self.get_final_recommendation(retrieval_context, query, reference_doc=similar_wine, reference_wine_present=True, num_results=num_results)
+            retrieval_context[self.retrieval_strategy] = filter_reference_doc(
+                retrieval_context[self.retrieval_strategy], similar_wine)
+            recommendation = self.get_final_recommendation(retrieval_context, query, reference_doc=similar_wine,
+                                                           reference_wine_present=True, num_results=num_results)
             return recommendation
-
-

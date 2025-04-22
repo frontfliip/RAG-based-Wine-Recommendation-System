@@ -3,10 +3,6 @@ from vectorstore.create_vectorstore import create_documents
 
 
 def fuzzy_match_all(value, candidates, threshold=80):
-    """
-    Returns a list of all candidate matches with a score above the threshold.
-    If no candidate meets the threshold, returns the original value.
-    """
     if value == "-":
         return value
     matches = process.extractBests(value, candidates, score_cutoff=threshold)
@@ -17,10 +13,6 @@ def fuzzy_match_all(value, candidates, threshold=80):
 
 
 def fuzzy_match_one(value, candidates, threshold=80):
-    """
-    Returns the best candidate match with a score above the threshold.
-    If no candidate meets the threshold, returns the original value.
-    """
     if value == "-":
         return value
     match = process.extractOne(value, candidates, score_cutoff=threshold)
@@ -36,7 +28,7 @@ def match_metadata_all(extracted_metadata, allowed_values):
     allowed_provinces = allowed_values.get("province", [])
     if "region_1" in allowed_values:
         allowed_provinces += allowed_values["region_1"]
-    allowed_provinces = list(set(allowed_provinces))  # remove duplicates
+    allowed_provinces = list(set(allowed_provinces))
 
     matched_positive["variety_designation"] = fuzzy_match_all(
         extracted_metadata["positive"].get("variety_designation", "-"), combined_candidates
@@ -51,7 +43,6 @@ def match_metadata_all(extracted_metadata, allowed_values):
         extracted_metadata["positive"].get("wine_color", "-"), allowed_values.get("wine_color", [])
     )
 
-    # Handle negative (only best match per field)
     matched_negative = {}
     matched_negative["variety_designation"] = fuzzy_match_one(
         extracted_metadata["negative"].get("variety_designation", "-"), combined_candidates
