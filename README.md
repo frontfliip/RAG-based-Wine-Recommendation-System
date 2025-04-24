@@ -44,3 +44,27 @@ On the left you can choose the retrieval method, the embedding model and the num
 It is important that it is not a chat-like assistant, one query - one recommendation. However, after the recommendation is recieved, you can add the follow-up details to it, if needed. It will trigger the recommendation process to repeat.
 If you want a new chat, just click `Reset chat` button. <br> For the best experience choose `Fusion` and `openai` embedding model, since this combination got the best metrics on the evaluation. And if you want to dig deeper into this project - check out the full thesis overleaf project [here](https://www.overleaf.com/read/dfppmryqcynr#4caaae).   
 So, whenever you are ready, write the query and enjoy your wine!
+
+# Folders Navigation
+
+- `app/`: Main application code
+  - `llm_setup/`: LLM prompt templates and setup scripts
+  - `rag_methods/`: Retrieval-augmented generation logic and metadata matching
+  - `vectorstore/`: Scripts to create and load FAISS indices for vector search
+  - `main.py`: Entry point to launch the Flask app
+- `data_processing/`: Data gathering and preprocessing
+  - `reviews_scraping/`: Scraping scripts and raw CSV/log output for wine reviews
+  - `data_processing.ipynb`: Notebook for cleaning and transforming data
+  - `wine_data_final.csv`: Processed dataset ready for indexing
+- `evaluation/`: Evaluation pipelines and results
+  - `results_metrics/`: Directories containing evaluation metrics for various experiments
+  - `evaluation.ipynb`: Notebook to run and visualize evaluation
+  - `evaluation_configs.json` & `evaluation_configs_real.json`: Config files for experiments
+  - `llm_labeled.csv` & `top_wines_journal.csv`: Labeled datasets used for evaluation
+- `schemas_and_images/`: Diagram assets and UI screenshot used in documentation
+- Root files:
+  - `.env`: Environment variables (OpenAI API key)
+  - `.gitignore`: Git ignore rules
+  - `docker-compose.yaml` & `Dockerfile`: Docker configuration
+  - `README.md`: This documentation
+  - `requirements.txt`: Python dependencies list
