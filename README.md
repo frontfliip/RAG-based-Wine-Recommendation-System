@@ -2,7 +2,7 @@
 # This repository is a code storage for the thesis of the same name by Ivan Nikolaichenko
 
 # Description
-This repository contain the code for a wine recommendation system, that works with natural language queries.
+This repository contains the code for a wine recommendation system, that works with natural language queries.
 The core concept of the system is RAG, when the LLM (GPT-4o-mini in this case) is provided with the additional context (wines in this case) to generate a more relevant response and reduce the hallucination likelihood.
 The wine documents can be retrieved based on the users query, using three different methods: Naive, Hybrid, HyDE, Fusion. The user may choose any of them, as well as one of the three embedding models.
 The solution is fully dockerized with a simple UI for user's convenience.
@@ -58,7 +58,7 @@ So, whenever you are ready, write the query and enjoy your wine!
   - `wine_data_final.csv`: Processed dataset ready for indexing
 - `evaluation/`: Evaluation pipelines and results
   - `results_metrics/`: Directories containing evaluation metrics for various experiments
-  - `evaluation.ipynb`: Notebook to run and visualize evaluation
+  - `evaluation.ipynb`: Notebook to run and visualize evaluation <br> **(Important that if you want to check out this notebook, download it and open locally. GitHub is facing problems with displaying the .ipynb files recently)**
   - `evaluation_configs.json` & `evaluation_configs_real.json`: Config files for experiments
   - `llm_labeled.csv` & `top_wines_journal.csv`: Labeled datasets used for evaluation
 - `schemas_and_images/`: Diagram assets and UI screenshot used in documentation
