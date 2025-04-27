@@ -28,9 +28,9 @@ OPENAI_API_KEY="YOUR_OPENAI_KEY"
      ```bash
      docker-compose up
      ```
-   - Wait until both containers are up and running. Ensure that all downloading process are finished, it may take some time.
+   - Wait until both containers are up and ready to receive requests. Ensure that all downloading process are finished, it may take some time.
    - Open your browser and go to http://0.0.0.0:8501 to start interacting with the application.
-4. Stop and clean up Docker containers  (once you are fifnished)
+4. Stop and clean up Docker containers  (once you are finished)
    - To stop the running containers:
      ```bash
      docker-compose down
